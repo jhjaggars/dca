@@ -30,28 +30,23 @@ def main():
         divided_amount_per_day = (amount_decimal / Decimal(num_days)).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
         total_divided = divided_amount_per_day * num_days
         difference = amount_decimal - total_divided
-        last_day_additional_amount = divided_amount_per_day + difference
+        distributed_additional_amount = (divided_amount_per_day + difference / Decimal(num_days)).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
     else:
-        divided_amount_per_day = Decimal('0.00')
-        last_day_additional_amount = Decimal('0.00')
+        distributed_additional_amount = Decimal('0.00')
 
     us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
     dt_range = pd.date_range(start=start_date, end=end_date, freq=us_bd)
     dt_range = dt_range[dt_range.dayofweek < 5]
 
-    print("\nTrading Days Calendar with Divided Amount (Decimal):")
-    for i, dt in enumerate(dt_range):
-        if i == len(dt_range) - 1:
-            divided_amount = last_day_additional_amount
-        else:
-            divided_amount = divided_amount_per_day
+    print("\nTrading Days Calendar with Equally Divided Amount (Decimal):")
+    for dt in dt_range:
+        print(f"{dt.strftime('%Y-%m-%d')} ({calendar.day_name[dt.weekday()]}): {distributed_additional_amount}")
 
-        print(f"{dt.strftime('%Y-%m-%d')} ({calendar.day_name[dt.weekday()]}): {divided_amount}")
+    total_invested = distributed_additional_amount * num_days
 
     print("\nSummary:")
     print(f"Total number of trading days: {num_days}")
-    print(f"Total amount invested: {amount_decimal}")
+    print(f"Total amount invested: {total_invested}")
 
 if __name__ == "__main__":
     main()
-
